@@ -393,6 +393,15 @@ public:
     //!     @return    Returns the molecular weight of species \c k.
     doublereal molecularWeight(size_t k) const;
 
+    //! Return the Molar mass of species \c k
+    //! Alternate name for molecular weight.
+    //!     @param k  index for species
+    //!     @return   Return the molar mass of species k kg/kmol.
+    //! @deprecated use molecularWeight instead
+    doublereal molarMass(size_t k) const {
+        return molecularWeight(k);
+    }
+
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
     void getMolecularWeights(vector_fp& weights) const;

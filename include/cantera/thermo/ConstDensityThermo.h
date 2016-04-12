@@ -101,6 +101,11 @@ public:
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
+    //! Was added because of the DENIS LFP Runaway simulation.
+    virtual void getPartialMolarEnthalpies(doublereal* result) const;
+
+    //! Was added because of the DENIS LFP Runaway simulation.
+    virtual void getPartialMolarEntropies(doublereal* result) const;
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
