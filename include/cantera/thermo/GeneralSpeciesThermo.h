@@ -118,6 +118,8 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const;
 
+    virtual void modifyParams(size_t index, doublereal* c);
+
     virtual doublereal reportOneHf298(const size_t k) const;
 
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);

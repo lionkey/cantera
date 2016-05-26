@@ -319,6 +319,7 @@ public:
      *                       units = J/kmol.
      */
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) = 0;
+    virtual void modifyParams(size_t k, doublereal* c){};
 
     //! Check if data for all species (0 through nSpecies-1) has been installed.
     bool ready(size_t nSpecies);

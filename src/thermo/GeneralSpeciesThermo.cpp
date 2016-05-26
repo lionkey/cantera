@@ -250,4 +250,13 @@ void GeneralSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298
     }
 }
 
+void GeneralSpeciesThermo::modifyParams(size_t k, doublereal* c)
+{
+    SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
+    if (sp_ptr) {
+        sp_ptr->modifyParameters(c);
+    }
+}
+
+
 }
