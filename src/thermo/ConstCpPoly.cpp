@@ -5,7 +5,6 @@
  * \link Cantera::ConstCpPoly ConstCpPoly \endlink).
  */
 // Copyright 2001  California Institute of Technology
-//Test Comment - MM 15.06.2016
 
 #include "cantera/thermo/ConstCpPoly.h"
 
