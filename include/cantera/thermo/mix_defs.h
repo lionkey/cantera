@@ -93,6 +93,7 @@ const int cPhaseCombo_Interaction = 305;
 const int cIonsFromNeutral = 2000;
 
 //! Variable Pressure Standard State ThermoPhase objects
+const int cIntercalation = 1110;
 const int cVPSS_IdealGas     = 1001;
 const int cVPSS_ConstVol     = 1002;
 const int cVPSS_PureFluid    = 1010;

@@ -1267,6 +1267,8 @@ class reaction(object):
         # otherwise, just use the supplied instance.
         nm = ''
         kfnode = r.addChild('rateCoeff')
+        if self._rateCoeff:
+            kfnode['type'] = self._rateCoeff
         if self._type == '':
             self._kf = [self._kf]
         elif self._type == 'surface':
@@ -1619,11 +1621,13 @@ class edge_reaction(reaction):
                  kf = None,
                  id = '',
                  order = '',
+                 rateCoeff = '',
                  beta = 0.0,
                  options = []):
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'edge'
         self._beta = beta
+        self._rateCoeff = rateCoeff
 
 
 #--------------
@@ -2124,6 +2128,51 @@ class incompressible_solid(phase):
         k = ph.addChild("kinetics")
         k['model'] = 'none'
 
+class intercalation(phase):
+    """An intercalation phase."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 note = '',
+                 density = None,
+                 transport = 'None',
+                 initial_state = None,
+                 intercalation_species = '',
+                 data_file = '',
+                 options = []):
+
+        phase.__init__(self, name, 3, elements, species, note, 'none',
+                       initial_state, options)
+        self._dens = density
+        self._pure = 0
+        self._intSpecies = intercalation_species
+        self._data = data_file
+        if self._dens is None:
+            raise CTI_Error('density must be specified.')
+        self._tr = transport
+        if intercalation_species == '':
+            raise CTI_Error('intercalation_species must be specified.')
+        if data_file == '':
+            raise CTI_Error('A data file must be specified.')
+
+    def conc_dim(self):
+        return (1,-3)
+
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.child("thermo")
+        e['model'] = 'Intercalation'
+        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
+        if self._intSpecies:
+            e.addChild('intercalation_species',self._intSpecies)
+        if self._data:
+            e.addChild('data',self._data)
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
 
 class lattice(phase):
     def __init__(self, 
