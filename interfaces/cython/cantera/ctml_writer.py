@@ -1267,14 +1267,15 @@ class reaction(object):
         # otherwise, just use the supplied instance.
         nm = ''
         kfnode = r.addChild('rateCoeff')
-        if self._rateCoeff:
-            kfnode['type'] = self._rateCoeff
+
         if self._type == '':
             self._kf = [self._kf]
         elif self._type == 'surface':
             self._kf = [self._kf]
         elif self._type == 'edge':
             self._kf = [self._kf]
+            if self._rateCoeff:
+                kfnode['type'] = self._rateCoeff
         elif self._type == 'threeBody':
             self._kf = [self._kf]
             self.mdim += 1
