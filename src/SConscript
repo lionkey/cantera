@@ -74,8 +74,8 @@ if localenv['layout'] != 'debian':
     else:
         sharedName = '../lib/cantera'
 
-    #lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
-    #                                   SPAWN=getSpawn(localenv)))
+    lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
+                                       SPAWN=getSpawn(localenv)))
     install('$inst_libdir', lib)
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])
