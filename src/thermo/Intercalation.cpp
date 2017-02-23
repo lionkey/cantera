@@ -209,13 +209,8 @@ void Intercalation::_updateThermo() const
 				m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
 			}
 			m_xlast = xnow;
+			m_tlast = tnow;
 		}
-		m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0],
-				&m_s0_R[0]);
-		for (size_t k = 0; k < m_kk; k++) {
-			m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-		}
-		m_tlast = tnow;
 	}
 }
 
@@ -259,8 +254,6 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 			throw CanteraError("Intercalation::initThermoXML",
 					"Unknown thermo model : " + model);
 		}
-
-
 	}
 	t.open(m_dataFile.c_str());
 	if(t.fail())
@@ -281,6 +274,9 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 			molefrac_s.push_back(std::make_pair(a,c));
 		}
 	}
+	// Sort the xLi, h, s data in th order of increasing xLi
+	std::sort(molefrac_h.begin(), molefrac_h.end());
+	std::sort(molefrac_s.begin(), molefrac_s.end());
 	t.close();
 	ThermoPhase::initThermoXML(phaseNode, id_);
 }
