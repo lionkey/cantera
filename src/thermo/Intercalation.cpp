@@ -249,8 +249,8 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 			}
 			if (thermoNode.hasChild("intercalation_species")) {
 				std::string intercalation_species_name = thermoNode.child("intercalation_species").value();
-				m_kk_int = static_cast<size_t>(speciesIndex(intercalation_species_name));
-				if (m_kk_int < 0) {
+				m_kk_int = speciesIndex(intercalation_species_name);
+				if (m_kk_int == npos) {
 					throw CanteraError("Intercalation::initThermoXML",
 							"Species " + intercalation_species_name + " not found.");
 				}
@@ -290,7 +290,7 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 			}
 		}
 	}
-	// Sort the xLi, h, s data in th order of increasing xLi
+	// Sort the xLi, h, s data in the order of increasing xLi
 	std::sort(molefrac_h.begin(), molefrac_h.end());
 	std::sort(molefrac_s.begin(), molefrac_s.end());
 	t.close();
@@ -305,7 +305,7 @@ doublereal Intercalation::interp_h(doublereal x) const
 	if (x < molefrac_h[0].first) return molefrac_h[0].second;
 	std::vector<std::pair<double, double> >::const_iterator it, it2;
 	// INFINITY is defined in math.h in the glibc implementation
-	it = lower_bound(molefrac_h.begin(), molefrac_h.end(), std::make_pair(x, molefrac_h[0].second));
+	it = std::lower_bound(molefrac_h.begin(), molefrac_h.end(), std::make_pair(x, molefrac_h[0].second));
 	// Corner case
 	if (it == molefrac_h.begin()) return it->second;
 	it2 = it;
@@ -321,7 +321,7 @@ doublereal Intercalation::interp_s(doublereal x) const
 	if (x < molefrac_s[0].first) return molefrac_s[0].second;
 	std::vector<std::pair<double, double> >::const_iterator it, it2;
 	// INFINITY is defined in math.h in the glibc implementation
-	it = lower_bound(molefrac_s.begin(), molefrac_s.end(), std::make_pair(x, molefrac_s[0].second));
+	it = std::lower_bound(molefrac_s.begin(), molefrac_s.end(), std::make_pair(x, molefrac_s[0].second));
 	// Corner case
 	if (it == molefrac_s.begin()) return it->second;
 	it2 = it;
