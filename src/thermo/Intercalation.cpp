@@ -193,7 +193,15 @@ void Intercalation::_updateThermo() const
 	doublereal c[4];
 	c[0]=tnow;
 	c[1]=interp_h(xnow) * 1e3; // 1e3 for conversion J/mol -> J/kmol
-	c[2]=interp_s(xnow) * 1e3 + GasConstant*std::log(xnow/(1.0-xnow)); // 1e3 for conversion J/K/mol -> J/K/kmol
+	doublereal dS_corr = 0.0;
+	if (xnow==0) {
+		dS_corr = -BigNumber;
+	} else if (xnow==1) {
+		dS_corr = BigNumber;
+	} else {
+		dS_corr = GasConstant*std::log(xnow/(1.0-xnow));
+	}
+	c[2]=interp_s(xnow) * 1e3 + dS_corr; // 1e3 for conversion J/K/mol -> J/K/kmol
 	c[3]=0.0;
 
 	if (m_tlast != tnow || m_xlast != xnow) {
