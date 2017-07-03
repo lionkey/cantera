@@ -191,25 +191,24 @@ void Intercalation::_updateThermo() const
 	doublereal tnow = temperature();
 	doublereal xnow = moleFraction(m_kk_int);
 	doublereal c[4];
-	c[0]=tnow;
-	c[1]=interp_h(xnow) * 1e3; // 1e3 for conversion J/mol -> J/kmol
 	doublereal dS_corr = 0.0;
-	if (xnow==0) {
-		dS_corr = -BigNumber;
-	} else if (xnow==1) {
-		dS_corr = BigNumber;
-	} else {
-		dS_corr = GasConstant*std::log(xnow/(1.0-xnow));
-	}
-	c[2]=interp_s(xnow) * 1e3 + dS_corr; // 1e3 for conversion J/K/mol -> J/K/kmol
-	c[3]=0.0;
-
 	if (m_tlast != tnow || m_xlast != xnow) {
 		GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
 		if (!genSpthermo) {
 			throw CanteraError("Intercalation::_updateThermo",
 					"unable to modify intercalation thermo");
 		} else {
+			c[0]=tnow;
+			c[1]=interp_h(xnow) * 1e3; // 1e3 for conversion J/mol -> J/kmol
+			if (xnow==0) {
+				dS_corr = -BigNumber;
+			} else if (xnow==1) {
+				dS_corr = BigNumber;
+			} else {
+				dS_corr = GasConstant*std::log(xnow/(1.0-xnow));
+			}
+			c[2]=interp_s(xnow) * 1e3 + dS_corr; // 1e3 for conversion J/K/mol -> J/K/kmol
+			c[3]=0.0;
 			genSpthermo->modifyParams(m_kk_int, &c[0]);
 			m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0],
 					&m_s0_R[0]);
