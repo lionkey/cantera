@@ -228,7 +228,8 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 	doublereal a=0,b=0,c=0;
 	std::ifstream t;
 	std::string line;
-
+	int count = 0;
+	
 	if (phaseNode.hasChild("thermo")) {
 		XML_Node& thermoNode = phaseNode.child("thermo");
 		std::string model = thermoNode["model"];
@@ -276,9 +277,17 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 		}
 		else
 		{
-			std::sscanf(line.c_str(), "%lf %lf %lf", &a, &b, &c);
-			molefrac_h.push_back(std::make_pair(a,b));
-			molefrac_s.push_back(std::make_pair(a,c));
+			count = std::sscanf(line.c_str(), "%lf %lf %lf", &a, &b, &c);
+			if (count==3)
+			{
+				molefrac_h.push_back(std::make_pair(a,b));
+				molefrac_s.push_back(std::make_pair(a,c));
+			}
+			else
+			{
+				throw CanteraError("initThermoXML",
+								"Data format error: " + m_dataFile);
+			}
 		}
 	}
 	// Sort the xLi, h, s data in th order of increasing xLi

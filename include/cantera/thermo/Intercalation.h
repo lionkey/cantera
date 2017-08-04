@@ -358,8 +358,10 @@ protected:
     //! Current pressure (Pa)
     doublereal m_press;
 
-    //File name for intercalation data
+    //! File name for intercalation thermo data
     std::string m_dataFile;
+
+    //! Vector pairs for intercalation thermo    
     std::vector<std::pair<doublereal,doublereal> > molefrac_h;
     std::vector<std::pair<doublereal,doublereal> > molefrac_s;
 
