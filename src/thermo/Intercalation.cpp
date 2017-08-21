@@ -90,7 +90,7 @@ void Intercalation::setPressure(doublereal p)
 
 void Intercalation::getActivityConcentrations(doublereal* c) const
 {
-	getConcentrations(c);
+    getMoleFractions(c);
 }
 
 void Intercalation::getActivityCoefficients(doublereal* ac) const
@@ -120,7 +120,7 @@ void Intercalation::getPartialMolarEntropies(doublereal* result) const {
 }
 doublereal Intercalation::standardConcentration(size_t k) const
 {
-	return molarDensity();
+	return 1;
 }
 
 void Intercalation::getChemPotentials(doublereal* mu) const
