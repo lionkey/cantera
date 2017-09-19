@@ -228,7 +228,7 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 	doublereal a=0,b=0,c=0;
 	std::ifstream t;
 	std::string line;
-	int count = 0;
+	size_t count = 0, lineNum=0;
 	
 	if (phaseNode.hasChild("thermo")) {
 		XML_Node& thermoNode = phaseNode.child("thermo");
@@ -271,6 +271,7 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 	}
 	while (getline(t,line))
 	{
+		lineNum++;
 		if((offset = line.find("*", 0)) != std::string::npos)
 		{
 			continue;
@@ -286,7 +287,7 @@ void Intercalation::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 			else
 			{
 				throw CanteraError("initThermoXML",
-								"Data format error: " + m_dataFile);
+								"Data format error at line:" + int2str(lineNum) + " file:" + m_dataFile);
 			}
 		}
 	}
