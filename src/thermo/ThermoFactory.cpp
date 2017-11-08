@@ -52,7 +52,9 @@
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/MixedSolventElectrolyte.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
-#include "cantera/thermo/Intercalation.h"
+
+#include "cantera/thermo/ConstDensityTabulatedThermo.h"
+#include "cantera/thermo/IdealSolidSolnPhaseTabulatedThermo.h"
 
 #include "cantera/base/stringUtils.h"
 
@@ -65,7 +67,7 @@ ThermoFactory* ThermoFactory::s_factory = 0;
 mutex_t ThermoFactory::thermo_mutex;
 
 //! Define the number of ThermoPhase types for use in this factory routine
-static int ntypes = 28;
+static int ntypes = 29;
 
 //! Define the string name of the ThermoPhase types that are handled by this factory routine
 static string _types[] = {"IdealGas", "Incompressible",
@@ -76,7 +78,8 @@ static string _types[] = {"IdealGas", "Incompressible",
                           "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                           "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
                           "MixedSolventElectrolyte", "Redlich-Kister", "RedlichKwong",
-                          "RedlichKwongMFTP", "MaskellSolidSolnPhase", "Intercalation"
+                          "RedlichKwongMFTP", "MaskellSolidSolnPhase", "ConstDensityTabulatedThermo",
+						  "IdealSolidSolutionTabulatedThermo"
                          };
 
 //! Define the integer id of the ThermoPhase types that are handled by this factory routine
@@ -88,7 +91,7 @@ static int _itypes[]   = {cIdealGas, cIncompressible,
                           cMineralEQ3, cMetalSHEelectrons,
                           cMargulesVPSSTP,  cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
                           cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP,
-                          cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase, cIntercalation
+                          cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase, cConstDensityTabulatedThermo, cIdealSolidSolutionTabulatedThermo
                          };
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
@@ -158,8 +161,10 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
         return new IdealSolnGasVPSS;
     case cMaskellSolidSolnPhase:
         return new MaskellSolidSolnPhase;
-    case cIntercalation:
-    	return new Intercalation;
+    case cConstDensityTabulatedThermo:
+    	return new ConstDensityTabulatedThermo;
+    case cIdealSolidSolutionTabulatedThermo:
+    	return new IdealSolidSolnPhaseTabulatedThermo;
     default:
         throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase", model);
     }

@@ -36,6 +36,7 @@ const int cHarmonicOsc = 4;
  */
 const int cIdealGas = 1;       //  IdealGasPhase in IdealGasPhase.h
 const int cIncompressible = 2; //  ConstDensityThermo in ConstDensityThermo.h
+
 /// A surface phase. Used by class SurfPhase.
 const int cSurf = 3;
 
@@ -93,13 +94,16 @@ const int cPhaseCombo_Interaction = 305;
 const int cIonsFromNeutral = 2000;
 
 //! Variable Pressure Standard State ThermoPhase objects
-const int cIntercalation = 1110;
 const int cVPSS_IdealGas     = 1001;
 const int cVPSS_ConstVol     = 1002;
 const int cVPSS_PureFluid    = 1010;
 const int cVPSS_HMW          = 1040;
 const int cVPSS_DebyeHuckel = 1050;
 const int cVPSS_MolalSoln   = 1060;
+
+//! Tabulated Standard State ThermoPhase objects
+const int cConstDensityTabulatedThermo = 1110;
+const int cIdealSolidSolutionTabulatedThermo = 1111;
 
 //! Types of general formulations for the specification of the standard state volume
 enum SSVolume_Model_enumType {
