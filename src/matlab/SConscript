@@ -16,7 +16,8 @@ if localenv['OS'] == 'Windows':
         mexSuffix = '.mexw32'
     else:
         matlab_libs = pjoin(localenv['matlab_path'], 'extern',
-                    'lib' ,'win64', 'microsoft')
+#                    'lib' ,'win64', 'microsoft')
+                    'lib' ,'win64', 'mingw64')
         mexSuffix = '.mexw64'
 
     if localenv['CC'] == 'cl':

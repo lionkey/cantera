@@ -42,6 +42,8 @@
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/MixedSolventElectrolyte.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
+#include "cantera/thermo/ConstDensityTabulatedThermo.h"
+#include "cantera/thermo/IdealSolidSolnPhaseTabulatedThermo.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -53,7 +55,7 @@ ThermoFactory* ThermoFactory::s_factory = 0;
 std::mutex ThermoFactory::thermo_mutex;
 
 //! Define the number of ThermoPhase types for use in this factory routine
-static int ntypes = 27;
+static int ntypes = 29;
 
 //! Define the string name of the ThermoPhase types that are handled by this factory routine
 static string _types[] = {"IdealGas", "Incompressible",
@@ -64,7 +66,8 @@ static string _types[] = {"IdealGas", "Incompressible",
                           "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
                           "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
                           "MixedSolventElectrolyte", "Redlich-Kister", "RedlichKwong",
-                          "RedlichKwongMFTP", "MaskellSolidSolnPhase"
+                          "RedlichKwongMFTP", "MaskellSolidSolnPhase", "ConstDensityTabulatedThermo",
+						  "IdealSolidSolutionTabulatedThermo"
                          };
 
 //! Define the integer id of the ThermoPhase types that are handled by this factory routine
@@ -77,7 +80,7 @@ static int _itypes[] = {cIdealGas, cIncompressible,
                         cMargulesVPSSTP, cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
                         cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP,
                         cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase
-                       };
+						};
 
 ThermoFactory::ThermoFactory()
 {
@@ -107,6 +110,8 @@ ThermoFactory::ThermoFactory()
     reg("RedlichKwong", []() { return new RedlichKwongMFTP(); });
     reg("RedlichKwongMFTP", []() { return new RedlichKwongMFTP(); });
     reg("MaskellSolidSolnPhase", []() { return new MaskellSolidSolnPhase(); });
+    reg("ConstDensityTabulatedThermo", []() { return new ConstDensityTabulatedThermo(); });
+    reg("IdealSolidSolutionTabulatedThermo", []() { return new IdealSolidSolnPhaseTabulatedThermo(); });
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)

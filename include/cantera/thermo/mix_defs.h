@@ -37,6 +37,7 @@ const int cHarmonicOsc = 4;
  */
 const int cIdealGas = 1; // IdealGasPhase in IdealGasPhase.h
 const int cIncompressible = 2; // ConstDensityThermo in ConstDensityThermo.h
+const int cIntercalation = 1110; // Intercalation in Intercalation.h
 /// A surface phase. Used by class SurfPhase.
 const int cSurf = 3;
 

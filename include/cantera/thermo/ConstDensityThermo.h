@@ -59,6 +59,12 @@ public:
     virtual void getActivityConcentrations(doublereal* c) const;
     virtual void getActivityCoefficients(doublereal* ac) const;
 
+    //! Was added because of the DENIS LFP Runaway simulation.
+    virtual void getPartialMolarEnthalpies(doublereal* result) const;
+
+    //! Was added because of the DENIS LFP Runaway simulation.
+    virtual void getPartialMolarEntropies(doublereal* result) const;
+
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getStandardChemPotentials(doublereal* mu0) const;
 

@@ -90,6 +90,26 @@ void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const
     }
 }
 
+void ConstDensityThermo::getPartialMolarEnthalpies(doublereal* result) const {
+    doublereal vdp = (pressure() - m_spthermo->refPressure()) / molarDensity();
+    doublereal rt = temperature() * GasConstant;
+    const vector_fp& h_RT = enthalpy_RT();
+    for (size_t k = 0; k < m_kk; k++) {
+        result[k] = rt*h_RT[k] + vdp;
+    }
+}
+
+void ConstDensityThermo::getPartialMolarEntropies(doublereal* result) const {
+    doublereal xx;
+    doublereal r = GasConstant;
+    const vector_fp& s_R = entropy_R();
+    for (size_t k = 0; k < m_kk; k++) {
+        xx = moleFraction(k);
+        if(xx < SmallNumber) xx = SmallNumber;
+        result[k] = r*(s_R[k] - log(xx));
+    }
+}
+
 doublereal ConstDensityThermo::standardConcentration(size_t k) const
 {
     return molarDensity();

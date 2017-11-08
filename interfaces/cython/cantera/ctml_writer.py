@@ -527,6 +527,7 @@ class species(object):
                  note = '',
                  thermo = None,
                  transport = None,
+                 standardState = None,
                  charge = -999,
                  size = 1.0):
         """
@@ -571,7 +572,8 @@ class species(object):
         else:
             self._thermo = const_cp()
 
-        self._transport = transport
+        self._transport = transport        
+        self._standardState = standardState
         chrg = 0
         self._charge = charge
         if 'E' in self._atoms:
@@ -637,6 +639,15 @@ class species(object):
                 nt = len(self._transport)
                 for n in range(nt):
                     self._transport[n].build(t)
+        if self._standardState:
+            ss = s.addChild("standardState")
+            ss['model'] = id
+            if isinstance(self._standardState, standardState):
+                self._standardState.build(ss)
+            else:
+                nt = len(self._thermo)
+                for n in range(nt):
+                    self._thermo[n].build(t)
 
 class thermo(object):
     """Base class for species standard-state thermodynamic properties."""
@@ -644,7 +655,7 @@ class thermo(object):
         return p.addChild("thermo")
     def export(self, f, fmt = 'CSV'):
         pass
-
+    
 class Mu0_table(thermo):
     """Properties are computed by specifying a table of standard
     chemical potentials vs. T."""
@@ -796,7 +807,30 @@ class NASA9(thermo):
         u["size"] = "9"
         u["name"] = "coeffs"
 
+class standardState(object):
+    """Base class for species standard-state properties."""
+    def _build(self, p):
+        return p.addChild("standardState")
+    def export(self, f, fmt = 'CSV'):
+        pass
+    
+class constantIncompressible(standardState):
+    """Constant molar volume."""
 
+    def __init__(self,
+                 molarVolume = 0.0):
+        """
+        :param molarVolume:
+            Reference-state molar volume. Default: 0.0.
+        """
+        self._mv = molarVolume
+
+    def build(self, ss):
+        #t = self._build(p)
+        ss['model']='constant_incompressible'
+        mv_units = _ulen+'3/'+_umol
+        addFloat(ss,'molarVolume',self._mv, defunits = mv_units)
+        
 class activityCoefficients(object):
     pass
 
@@ -1283,12 +1317,15 @@ class reaction(object):
         # otherwise, just use the supplied instance.
         nm = ''
         kfnode = r.addChild('rateCoeff')
+
         if self._type == '':
             self._kf = [self._kf]
         elif self._type == 'surface':
             self._kf = [self._kf]
         elif self._type == 'edge':
             self._kf = [self._kf]
+            if self._rateCoeff:
+                kfnode['type'] = self._rateCoeff
         elif self._type == 'threeBody':
             self._kf = [self._kf]
             self.mdim += 1
@@ -1637,12 +1674,13 @@ class edge_reaction(reaction):
                  kf = None,
                  id = '',
                  order = '',
+                 rateCoeff = '',
                  beta = 0.0,
                  options = []):
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'edge'
         self._beta = beta
-
+        self._rateCoeff = rateCoeff
 
 #--------------
 
@@ -2135,7 +2173,100 @@ class incompressible_solid(phase):
         k = ph.addChild("kinetics")
         k['model'] = 'none'
 
+class ConstDensityTabulatedThermo(phase):
+    """A ConstDensityTabulatedThermo phase."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 note = '',
+                 density = None,
+                 transport = 'None',
+                 initial_state = None,
+                 modifiable_species = '',
+                 data_file = '',
+                 options = []):
 
+        phase.__init__(self, name, 3, elements, species, note, 'None',
+                       initial_state, options)
+        self._dens = density
+        self._pure = 0
+        self._modSpecies = modifiable_species
+        self._data = data_file
+        if self._dens is None:
+            raise CTI_Error('In phase '+name+': density must be specified.')
+        self._tr = transport
+        if modifiable_species == '':
+            raise CTI_Error('In phase '+name+': modifiable_species must be specified.')
+        if data_file == '':
+            raise CTI_Error('In phase '+name+': A data file must be specified.')
+
+    def conc_dim(self):
+        return (1,-3)
+
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.child("thermo")
+        e['model'] = 'ConstDensityTabulatedThermo'
+        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
+        if self._modSpecies:
+            e.addChild('modifiable_species',self._modSpecies)
+        if self._data:
+            e.addChild('data',self._data)
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
+
+class IdealSolidSolutionTabulatedThermo(phase):
+    """An IdealSolidSolutionTabulatedThermo phase."""
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 note = '',
+                 density = None,
+                 transport = 'None',
+                 initial_state = None,
+                 standard_concentration = None,
+                 modifiable_species = '',
+                 data_file = '',
+                 options = []):
+
+        phase.__init__(self, name, 3, elements, species, note, 'None',
+                       initial_state, options)
+        self._pure = 0
+        self._modSpecies = modifiable_species
+        self._data = data_file
+        self._stdconc = standard_concentration
+        if self._stdconc is None:
+            raise CTI_Error('In phase '+name+': standard_concentration must be specified.')
+        self._tr = transport
+        if modifiable_species is None:
+            raise CTI_Error('In phase '+name+': modifiable_species must be specified.')
+        if data_file == '':
+            raise CTI_Error('In phase '+name+': A data file must be specified.')
+
+    def conc_dim(self):
+        return (1,-3)
+
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.child("thermo")
+        e['model'] = 'IdealSolidSolutionTabulatedThermo'
+        if self._modSpecies:
+            e.addChild('modifiable_species',self._modSpecies)
+        if self._data:
+            e.addChild('data',self._data)
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        k = ph.addChild("kinetics")
+        k['model'] = 'none'
+        sc = ph.addChild('standardConc')
+        sc['model'] = self._stdconc
+        
 class lattice(phase):
     def __init__(self,
                  name = '',
