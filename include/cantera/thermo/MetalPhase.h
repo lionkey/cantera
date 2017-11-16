@@ -79,6 +79,22 @@ public:
         return m_press;
     }
 
+    /*
+     * Added for delta enthalpy with metal phase =========================
+    */
+   	virtual void getPartialMolarEnthalpies(doublereal* result) const{
+   		for (size_t n = 0; n < nSpecies(); n++) {
+               result[n] = 0.0;
+           }
+   	}
+
+   	virtual void getPartialMolarEntropies(doublereal* result) const{
+   		for (size_t n = 0; n < nSpecies(); n++) {
+               result[n] = 0.0;
+           }
+   	}
+   /*======================================================================*/
+
     virtual void getChemPotentials(doublereal* mu) const {
         for (size_t n = 0; n < nSpecies(); n++) {
             mu[n] = 0.0;
