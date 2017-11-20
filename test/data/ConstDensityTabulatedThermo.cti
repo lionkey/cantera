@@ -1,0 +1,116 @@
+#=====================================================================================
+#   Electrodes
+#=====================================================================================
+
+# Graphite (anode)
+#------------------------------------------------------------------
+ConstDensityTabulatedThermo(
+	name = "anode",
+	elements = "Li C",
+	species = "Li[anode] V[anode]",  # Lithium atoms, vacancies, and electrons
+	density = (2541, 'kg/m3'),#(2420, 'kg/m3'),
+	initial_state = state( mole_fractions = "Li[anode]:0.5 V[anode]:0.5"),
+    modifiable_species = "Li[anode]",
+    data_file = "../data/Anode_Graphite.dat") # for discharge, starts from full of Li in anode
+
+# Electron (anode)
+#------------------------------------------------------------------
+incompressible_solid(
+	name = "electron_anode",
+	elements = "E",
+	species = "electron",
+	density = (2541, 'kg/m3'),
+	initial_state = state( mole_fractions = "electron:1.0")
+)
+
+# cathode (cathode)
+#------------------------------------------------------------------
+ConstDensityTabulatedThermo(
+	name = "cathode",
+	elements = "Li Fe P O",
+	species = "Li[cathode] V[cathode]",  # Lithium atoms, vacancies
+	density = (1512, 'kg/m3'),
+	initial_state = state( mole_fractions = "Li[cathode]:0.5 V[cathode]:0.5"),
+    modifiable_species = "Li[cathode]",
+    data_file = "../data/Cathode_LFP.dat") # for discharge, starts from full of vacancies
+
+# electron conductor at cathode
+#------------------------------------------------------------------
+incompressible_solid(
+	name = "electron_cathode",
+	elements = "E",
+	species = "electron",
+	density = (1812.0, 'kg/m3'), # dummy entry
+	initial_state = state( mole_fractions = "electron:1.0")
+)
+
+#=====================================================================================
+# Electrolyte
+#=====================================================================================
+
+# Carbonate electrolyte
+#--------------------------------------------------------------------
+
+incompressible_solid(
+	name = "electrolyte",
+	elements = "Li P F C H O E",
+	species = "bulk[C3H4O3] bulk[C4H6O3] Li+[elyt] PF6-[elyt]",
+	initial_state = state(pressure = OneAtm, mole_fractions = 'bulk[C3H4O3]:0.6 bulk[C4H6O3]:0.2 Li+[elyt]:0.1 PF6-[elyt]:0.1'),  # bulk[C3H4O3]=EC, bulk[C3H6O3]=DMC
+	density = (1195.0,'kg/m3') # density of ethylene carbonate = 1320.0 kg/m3, density of dimethyl carbonate = 1070.0 kg/m3, for EC:DMC = 1:1 average density = 1195.0 kg/m3
+)
+
+#=====================================================================================
+# Interfaces for electrochemical reactions
+#=====================================================================================
+
+# Anodenreaktion
+#--------------------------------------------------------------------
+ideal_interface(
+	name = "edge_anode_electrolyte",
+	phases = 'electrolyte anode electron_anode',
+	reactions = ["anode_*"],
+	elements = "",                      # dummy entry for global kinetics
+	species = "(dummy)",                # dummy entry for global kinetics
+	site_density = (1.0e-2, 'mol/cm2'),	# dummy entry for global kinetics
+	)
+
+edge_reaction("Li+[elyt] + V[anode] + electron <=> Li[anode]", [3e10, 0.0, (53.411, 'kJ/mol')], rateCoeff = "exchangecurrentdensity", beta = 0.5,id="anode_reaction")
+
+# Cathodenreaktion
+#--------------------------------------------------------------------
+ideal_interface(
+	name = "edge_cathode_electrolyte",
+	phases = 'electrolyte cathode electron_cathode',
+	reactions = ["cathode_*"],
+	elements = "",                      # dummy entry for global kinetics
+	species = "(dummy)",                # dummy entry for global kinetics
+	site_density = (1.0e-2, 'mol/cm2'),	# dummy entry for global kinetics
+	)
+
+edge_reaction("Li+[elyt] + V[cathode] + electron <=> Li[cathode]", [7e4, 0.0, (41.367, 'kJ/mol')], rateCoeff = "exchangecurrentdensity", beta = 0.5,id="cathode_reaction")
+
+
+#=====================================================================================
+# Species properties
+#=====================================================================================
+
+species(name = "electron", atoms = "E:1", thermo = 
+  const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))
+
+species(name = "Li[anode]", atoms = "Li:1 C:6",	thermo = 
+  const_cp(h0 = (-11.65, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))
+
+species(name = "V[anode]", atoms = "C:6", thermo = 
+  const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))
+
+species(name = "Li[cathode]", atoms = "Li:1 Fe:1 P:1 O:4", thermo = 
+  const_cp(h0 = (-368.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))
+
+species(name = "V[cathode]", atoms = "Fe:1 P:1 O:4", thermo = 
+  const_cp(h0 = (0, 'kJ/mol'),	s0 = (0.0, 'J/mol/K')))
+
+species(name = "(dummy)", atoms = "", thermo = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))
+species(name = "bulk[C3H4O3]", atoms = "C:3 H:4 O:3", thermo = NASA([180.00, 1000.00], [-6.9763, 0.1003, -0.00008, 0.0, 0.0, -7.11E+04, 34.5]))
+species(name = "bulk[C4H6O3]", atoms = "C:4 H:6 O:3", thermo = const_cp(h0 =(0.0, 'J/mol'), s0 = (0.0, 'J/mol/K'))) #EMC is not used for calculation
+species(name = "Li+[elyt]", atoms =	"Li:1 E:-1", thermo	= const_cp(h0 = (0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')))    # These values are not that important, they cancel out during back & forward reaction
+species(name = "PF6-[elyt]", atoms = "P:1 F:6 E:1", thermo = const_cp(h0 = (0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')))   
