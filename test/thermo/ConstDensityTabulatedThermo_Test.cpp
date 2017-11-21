@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ConstDensityTabulatedThermo.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include <iostream>
 
 namespace Cantera
 {
